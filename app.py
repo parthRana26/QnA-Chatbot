@@ -3,9 +3,6 @@ import os
 from dotenv import load_dotenv
 
 from langchain_groq import ChatGroq
-from langchain_huggingface import HuggingFaceEmbeddings
-from langchain_chroma import Chroma
-
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.chat_history import InMemoryChatMessageHistory
 
@@ -23,22 +20,10 @@ llm = ChatGroq(
 )
 
 # =====================
-# VECTOR DB (RAG)
-# =====================
-embedding = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
-
-vectorstore = Chroma(
-    persist_directory="db",
-    embedding_function=embedding
-)
-
-retriever = vectorstore.as_retriever()
-
-# =====================
 # PROMPT
 # =====================
 prompt = ChatPromptTemplate.from_messages([
-    ("system", "You are a helpful AI assistant and your name is RAGBOT."),
+    ("system", "You are a helpful AI assistant. Your name is Robust Artificial Genius. Created by Mr. Parth Rana."),
     MessagesPlaceholder(variable_name="history"),
     ("human", "{user_input}")
 ])
@@ -48,13 +33,17 @@ prompt = ChatPromptTemplate.from_messages([
 # =====================
 st.set_page_config(page_title="AI Chatbot", page_icon="🤖")
 
-st.title("🤖 My Chatbot")
+st.title("🤖 AI Chatbot")
 
-# Initialize memory
+# =====================
+# MEMORY INIT
+# =====================
 if "history" not in st.session_state:
     st.session_state.history = InMemoryChatMessageHistory()
 
-# Display chat history
+# =====================
+# DISPLAY CHAT HISTORY
+# =====================
 for msg in st.session_state.history.messages:
     if msg.type == "human":
         st.chat_message("user").write(msg.content)
@@ -71,40 +60,19 @@ if user_input:
     st.chat_message("user").write(user_input)
 
     # =====================
-    # RAG: Retrieve context
-    # =====================
-    docs = retriever.invoke(user_input)
-    context = "\n\n".join([doc.page_content for doc in docs])
-
-    # =====================
-    # HYBRID LOGIC
-    # =====================
-    if context.strip():
-        final_input = f"""
-        Answer based on the context below.
-
-        Context:
-        {context}
-
-        Question:
-        {user_input}
-        """
-    else:
-        final_input = user_input
-
-    # =====================
-    # PROMPT + LLM
+    # PROMPT + MEMORY
     # =====================
     prompt_value = prompt.invoke({
-        "user_input": final_input,
+        "user_input": user_input,
         "history": st.session_state.history.messages
     })
 
+    # =====================
+    # LLM RESPONSE
+    # =====================
     response = llm.invoke(prompt_value)
 
-    # =====================
-    # DISPLAY RESPONSE
-    # =====================
+    # Show AI response
     st.chat_message("assistant").write(response.content)
 
     # =====================
