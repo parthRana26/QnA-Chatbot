@@ -1,12 +1,18 @@
-# 🤖 AI Chatbot (RAG + Memory)
+# 🤖 QnA Chatbot
 
-## Features
-- Conversational chatbot
-- Memory support
-- RAG (Retrieval Augmented Generation)
+A conversational AI chatbot built using:
+- LangChain
+- Groq LLM
 - Streamlit UI
 
-## Run locally
-```bash
-pip install -r requirements.txt
-streamlit run app.py
+## Features
+- ChatGPT-style UI
+- Memory support
+- Fast responses
+
+## Run Locally
+pip install -r requirements.txt  
+streamlit run app.py  
+
+## Deployment
+Add GROQ_API_KEY in Streamlit Secrets
